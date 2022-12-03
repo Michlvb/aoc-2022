@@ -6,11 +6,6 @@
 
 using namespace std;
 
-//Already tried:
-// - 2104
-//
-
-
 #define LOWER 1
 #define UPPER 27
 
