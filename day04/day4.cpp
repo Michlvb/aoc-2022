@@ -11,13 +11,6 @@
 
 using namespace std;
 
-bool	if_contains(string needle, string haystack)
-{
-	if (needle.find(haystack) != string::npos)
-		return (true);
-	return (false);
-}
-
 int main(int argc, char *argv[])
 {
 	string line;
