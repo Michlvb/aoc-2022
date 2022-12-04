@@ -1,13 +1,5 @@
 #include <iostream>
-#include <cstring>  
 #include <fstream>
-#include <cstring>
-#include <map>
-#include <vector>
-#include <iostream>
-#include <string>
-#include <set>
-#include <array>
 
 using namespace std;
 
@@ -32,7 +24,10 @@ int main(int argc, char *argv[])
 	int	 		part;
 
 	if (argc < 3)
+	{
+		cerr << "Insufficient amount of parameters provided. File is ran as followed: ./result <filename> <part 1 or 2>" << endl;
 		return (1);
+	}
 	
 	try
 	{
@@ -40,7 +35,7 @@ int main(int argc, char *argv[])
 	} catch (invalid_argument& e)
 	{
 		cerr << e.what() << endl;
-		exit(1);
+		return (1);
 	}
 
 	ifstream fs(argv[1]);
