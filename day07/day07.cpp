@@ -7,6 +7,8 @@
 using namespace std;
 
 const string CHARACTERS = " \n\r\t\f\v";
+const int UNUSED_SPACE = 30000000;
+const int TOTAL_DISK_SPACE = 70000000;
 
 class Directory 
 {
@@ -25,23 +27,23 @@ class Directory
 };
 
 
-void    printOutFS(Directory *directory)
+void    printOutFS(Directory *dir)
 {
-    cout << directory->dirName << endl;
-    cout << "Total size: " << directory->totalSize << endl;
-    for (auto file = directory->files.begin(); file != directory->files.end(); file++) 
+    cout << dir->dirName << endl;
+    cout << "Total size: " << dir->totalSize << endl;
+    for (auto file = dir->files.begin(); file != dir->files.end(); file++) 
     {
         cout << file->second << ": " << file->first << endl;
     }
 
     cout << endl;
 
-    if (directory->subdirectories.size() == 0)
+    if (dir->subdirectories.size() == 0)
         return ;
 
-    for (int i = 0; i < directory->subdirectories.size(); i++)
+    for (Directory *subdir: dir->subdirectories)
     {
-        printOutFS(directory->subdirectories[i]);
+        printOutFS(subdir);
     }
 }
 
@@ -55,35 +57,47 @@ void  partOne(Directory *dir, int threshold, int &total)
     if (dir->subdirectories.size() == 0)
         return ;
     
-    for (int i = 0; i < dir->subdirectories.size(); i++)
+    for (Directory *subdir: dir->subdirectories)
     {
-        printDirAndSize(dir->subdirectories[i], threshold, total);
+        partOne(subdir, threshold, total);
     }
 }
 
-void  smallestFolderToDelete()
+void  smallestFolderToDelete(Directory *dir, int threshold, vector<int> &values)
 {
+    if (dir->totalSize >= threshold)
+    {
+        values.push_back(dir->totalSize);
+    }
 
+    if (dir->subdirectories.size() == 0)
+        return ;
+
+    for(Directory *subdir: dir->subdirectories)
+    {
+        smallestFolderToDelete(subdir, threshold, values);
+    }
 }
 
-int    setSizes(Directory *dir)
+int    IncludeSubSize(Directory *dir)
 {
     if (dir->subdirectories.size() == 0)
     {
         return dir->totalSize;
     }
 
-    for (int i = 0; i < dir->subdirectories.size(); i++)
+    for (Directory *subdir: dir->subdirectories)
     {
-        dir->totalSize += setSizes(dir->subdirectories[i]);
+        dir->totalSize += IncludeSubSize(subdir);
     }
     return dir->totalSize;
 }
 
-void    create_dirs(char *filename)
+void    create_dirs(char *filename, int part)
 {
     string line;
     int total;
+    vector<int> minDirs;
 
     ifstream fs(filename);
     
@@ -137,37 +151,47 @@ void    create_dirs(char *filename)
             curr->totalSize += size;
         }
     }
-    setSizes(root);
-    partOne(root, 100000, total);
+    IncludeSubSize(root);
+    if (part == 1)
+    {
+        partOne(root, 100000, total);
+        cout << "Total: " << total << endl;
+    }
+    else if (part == 2)
+    {
+        smallestFolderToDelete(root, (UNUSED_SPACE - (TOTAL_DISK_SPACE - root->totalSize)), minDirs);
+        cout <<  "Min value: " << *min_element(minDirs.begin(), minDirs.end()) << endl;
+    }
+    // printOutFS(root);
     fs.close();
 }
 
 int main(int ac, char *argv[])
 {
-    if (ac < 2)
+    int part;
+    if (ac < 3)
     {
-        cerr << "Insufficient amount of params supplied, expects: <filename> & <range of unique values>" << endl;
+        cerr << "Insufficient amount of params supplied, expects: <filename> & <part>" << endl;
         return 1;
     }
 
     ifstream fs(argv[1]);
-    if(!fs.good())
+    try 
     {
-        cerr << "Failed to open file: " << argv[1] << endl;
-        return 1;
+        part = stoi(argv[2]);
+        if(!fs.good())
+        {
+            cerr << "Failed to open file: " << argv[1] << endl;
+            return 1;
+        }
+        fs.close();
     }
-    fs.close();
+    catch (invalid_argument& e)
+	{
+		cerr << e.what() << endl;
+		return (1);
+    }
 
-    // create_dirs(argv[1]);
-
-    // Total disk space: 70000000
-    // Unused space voor update: 30000000
-    // 70.000.000 - 30.000.000 = 40.000.000
-    // Find the smallest directory that, 
-    // if deleted,
-    // would free up enough space on the filesystem to run the update.
-
+    create_dirs(argv[1], part);
     return 0;
 }
-
-// 919137 -> correct
