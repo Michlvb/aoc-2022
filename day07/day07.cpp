@@ -93,13 +93,11 @@ int    IncludeSubSize(Directory *dir)
     return dir->totalSize;
 }
 
-void    create_dirs(char *filename, int part)
+void    create_dirs(ifstream &fs, int part)
 {
     string line;
     int total;
     vector<int> minDirs;
-
-    ifstream fs(filename);
     
     Directory *root = new Directory("/");
     Directory *curr = root;
@@ -184,7 +182,6 @@ int main(int ac, char *argv[])
             cerr << "Failed to open file: " << argv[1] << endl;
             return 1;
         }
-        fs.close();
     }
     catch (invalid_argument& e)
 	{
@@ -192,6 +189,6 @@ int main(int ac, char *argv[])
 		return (1);
     }
 
-    create_dirs(argv[1], part);
+    create_dirs(fs, part);
     return 0;
 }
