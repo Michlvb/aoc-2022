@@ -44,11 +44,8 @@ class Day10
         
         void monkeyInTheMiddle()
         {
-            int turns = 0;
             while (this->rounds > 0)
             {
-                find_lvl_monkey_business();
-
                 for(Monkey *monkey: this->monkeys)
                 {
                     while (!monkey->items.empty())
@@ -82,7 +79,6 @@ class Day10
                     }
                 }
                 this->rounds--;
-                turns++;
             }
         }
         
